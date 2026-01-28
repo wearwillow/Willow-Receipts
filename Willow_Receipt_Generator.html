@@ -1,0 +1,1297 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Willow - Receipt Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --brand: #334364;
+      --muted: #6b7280;
+      --dark: #111827;
+    }
+
+    body {
+      font-family: "Open Sans", Arial, sans-serif;
+      margin: 0;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .wrap {
+      display: flex;
+      gap: 20px;
+      padding: 18px;
+      box-sizing: border-box;
+      align-items: flex-start;
+    }
+
+    .ui {
+      width: 360px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+      height: calc(100vh - 40px);
+      overflow: auto;
+      box-sizing: border-box;
+    }
+
+    .ui h2 {
+      margin: 0 0 10px 0;
+      color: var(--brand);
+      font-size: 18px;
+      font-family: "Fredoka", sans-serif;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      margin-top: 6px;
+      box-sizing: border-box;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .items {
+      margin-top: 12px;
+    }
+
+    .item-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .item-row input {
+      font-size: 13px;
+    }
+
+    .product-selector {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 12px;
+      background: #f9fafb;
+      border: 2px solid var(--brand);
+      border-radius: 8px;
+    }
+
+    .product-selector h5 {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--brand);
+      text-transform: uppercase;
+    }
+
+    .option-boxes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .option-box {
+      position: relative;
+    }
+
+    .option-box input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .option-box label {
+      display: block;
+      padding: 10px 16px;
+      background: white;
+      border: 2px solid #d1d5db;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+      min-width: 60px;
+    }
+
+    .option-box input[type="radio"]:checked+label {
+      background: var(--brand);
+      color: white;
+      border-color: var(--brand);
+    }
+
+    .option-box label:hover {
+      border-color: var(--brand);
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(51, 67, 100, 0.2);
+    }
+
+    .size-options {
+      display: none;
+    }
+
+    .size-options.active {
+      display: block;
+    }
+
+    .item-row .desc {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .item-row .qty {
+      width: 56px;
+    }
+
+    .item-row .price {
+      width: 90px;
+    }
+
+    .item-row .amount {
+      width: 95px;
+      background: #f9fafb;
+      padding: 7px;
+      border-radius: 4px;
+      text-align: right;
+    }
+
+    .item-row .btn-remove {
+      width: 32px;
+      height: 32px;
+      background: #ef4444;
+      color: #fff;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .item-row .btn-remove:hover {
+      background: #dc2626;
+    }
+
+    .buttons {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .btn-add {
+      background: transparent;
+      border: 1px dashed var(--brand);
+      color: var(--brand);
+    }
+
+    .btn-done {
+      background: var(--brand);
+      color: #fff;
+      flex: 1;
+    }
+
+    .btn-print {
+      background: #16379b;
+      color: #fff;
+      flex: 1;
+    }
+
+    #download-status {
+      font-size: 12px;
+      color: #555;
+      margin-top: 6px;
+      padding: 8px;
+      background: #f9fafb;
+      border-radius: 4px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .preview-wrap {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-bottom: 40px;
+      box-sizing: border-box;
+    }
+
+    .receipt {
+      width: 794px;
+      background: #fff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .08);
+      padding: 36px 46px;
+      box-sizing: border-box;
+      position: relative;
+      color: #334364;
+    }
+
+    .header {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .seal {
+      width: 100px;
+      height: auto;
+      flex-shrink: 0;
+      margin-right: 16px;
+      margin-left: 25px;
+    }
+
+    .company {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .company h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 1px;
+      color: var(--brand);
+      font-family: "Fredoka", sans-serif;
+    }
+
+    .company p {
+      margin: 0;
+      font-size: 12px;
+      color: #0f2b67;
+    }
+
+    .meta {
+      border: 1px solid #cfe0ff;
+      padding: 8px;
+      width: 260px;
+      font-size: 12px;
+      color: #0f2b67;
+      border-radius: 3px;
+    }
+
+    .meta div {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    table.items {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 18px;
+      font-size: 13px;
+    }
+
+    table.items th {
+      background: var(--brand);
+      color: #fff;
+      padding: 10px;
+      text-align: left;
+    }
+
+    table.items td {
+      padding: 10px;
+      border: 1px solid #e6eefc;
+      vertical-align: top;
+    }
+
+    table.items td.center {
+      text-align: center;
+    }
+
+    table.totals {
+      width: 95%;
+      margin-left: auto;
+      margin-top: 8px;
+      font-size: 13px;
+      border-collapse: collapse;
+    }
+
+    table.totals td {
+      padding: 6px;
+      border: none;
+    }
+
+    .align-amount {
+      text-align: right;
+      padding-right: 46px;
+      position: relative;
+      right: 0;
+    }
+
+    .note {
+      position: absolute;
+      right: 46px;
+      bottom: 78px;
+      width: 260px;
+      font-size: 15px;
+      color: #16379b;
+      text-align: left;
+      border-left: 3px solid #cfe0ff;
+      padding-left: 8px;
+    }
+
+    .validated {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #16379b;
+    }
+
+    .validated strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .write-line {
+      border-bottom: 1px solid #16379b;
+      display: inline-block;
+      min-width: 160px;
+      padding-bottom: 3px;
+      box-shadow: none;
+    }
+
+    .barcode-note {
+      font-size: 11px;
+      color: #16379b;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .mobile-toggle {
+      display: none;
+      margin-top: 12px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      background: var(--dark);
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .config-section {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f0f9ff;
+      border-radius: 6px;
+      border: 2px solid var(--brand);
+    }
+
+    .config-section h3 {
+      margin: 0 0 8px 0;
+      color: var(--brand);
+      font-size: 14px;
+    }
+
+    .config-section input {
+      margin-top: 4px;
+    }
+
+    .product-info-section {
+      margin-top: 12px;
+      padding: 10px;
+      background: #f0f9ff;
+      border-radius: 6px;
+      border: 2px solid var(--brand);
+    }
+
+    .product-info-section h4 {
+      margin: 0 0 8px 0;
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .product-info-section p {
+      margin: 4px 0;
+      font-size: 11px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .product-info-section strong {
+      color: var(--brand);
+    }
+
+    @media (max-width: 767px) {
+      .wrap {
+        display: block;
+        padding: 12px;
+      }
+
+      .ui {
+        width: 100%;
+        height: auto;
+        max-height: none;
+      }
+
+      .preview-wrap {
+        display: none;
+      }
+
+      .mobile-toggle {
+        display: block;
+      }
+
+      .receipt {
+        width: 100%;
+        box-shadow: none;
+        padding: 18px;
+      }
+
+      table.items,
+      table.totals {
+        font-size: 12px;
+        display: block;
+        overflow: auto;
+        width: 100%;
+      }
+
+      .write-line {
+        min-width: 120px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .wrap {
+        padding: 0;
+        display: block;
+      }
+
+      .ui {
+        display: none;
+      }
+
+      .preview-wrap {
+        display: block;
+        padding: 0;
+      }
+
+      .receipt {
+        box-shadow: none;
+        margin: 0 auto;
+        width: 210mm;
+        height: 297mm;
+        padding: 15mm;
+        page-break-after: avoid;
+        page-break-before: avoid;
+        page-break-inside: avoid;
+        overflow: hidden;
+      }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="ui" id="ui">
+      <h2>Receipt Encoder</h2>
+
+      <div class="product-info-section">
+        <h4>👕 Willow Product Options</h4>
+        <p><strong>Sizes:</strong> Boxy Fit (S, M, L, XL, XXL) • Slim Fit (XS, S, M, L, XL)</p>
+        <p><strong>Colors:</strong> Harbor Navy, Apricot White, Midnight Black</p>
+        <p style="margin-top:8px; font-style:italic;">These options will appear in the item dropdown below.</p>
+      </div>
+
+      <label>Name</label>
+      <input id="input-name" type="text" placeholder="e.g. Juan Dela Cruz">
+
+      <label>Grade and Section</label>
+      <input id="input-grade" type="text" placeholder="e.g. 11-Hurtado">
+
+      <label>Email</label>
+      <input id="input-email" type="text" placeholder="student@addu.edu.ph">
+
+      <label>Payment Type</label>
+      <select id="input-payment">
+        <option>Cash</option>
+        <option>GCash</option>
+        <option>Bank Transfer</option>
+      </select>
+
+      <label>Payment Status</label>
+      <select id="input-status">
+        <option value="Paid">Fully Paid</option>
+        <option value="Pending">Pending / w/ Balance</option>
+      </select>
+
+      <div id="balance-container" style="display:none; margin-top:6px;">
+        <label style="margin-top:0; font-size:11px;">Amount Paid (₱)</label>
+        <input type="number" id="input-amount-paid" placeholder="0.00" step="0.01">
+      </div>
+
+      <label>Invoice No.</label>
+      <div style="display:flex; gap:8px;">
+        <input id="input-invoice" type="text" placeholder="e.g. INV-2025-001" />
+        <button id="btn-gen-invoice"
+          style="flex:0 0 160px; background:var(--dark); color:#fff; border-radius:6px;">Generate Invoice No.</button>
+      </div>
+
+      <label>Date of Recording</label>
+      <input id="input-date" type="date">
+
+      <div class="items">
+        <label>Items (Description • Qty • Price)</label>
+        <div id="items-container">
+          <!-- Initial item row will be created by JavaScript -->
+        </div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="btn-add" id="add-item">+ Add Item</button>
+          <button class="btn-add" id="clear-all" style="background:#ef4444; color:#fff; border:1px solid #ef4444;">Clear
+            All Fields</button>
+        </div>
+      </div>
+
+      <label>Shipping Details</label>
+      <div style="background:#f0f9ff; padding:8px; border:2px solid var(--brand); border-radius:4px; margin-top:4px;">
+        <label style="margin-top:0; font-size:11px;">Region</label>
+        <select id="shipping-region" style="margin-top:2px; font-size:12px;">
+          <option value="">(None)</option>
+          <option value="luzon">Luzon</option>
+          <option value="visayas">Visayas</option>
+          <option value="mindanao">Mindanao</option>
+        </select>
+
+        <label style="margin-top:6px; font-size:11px;">Box Type</label>
+        <select id="shipping-box" style="margin-top:2px; font-size:12px;">
+          <option value="">(None)</option>
+          <option value="small">Npack Small / KB Mini</option>
+          <option value="large">Npack Large / KB Small</option>
+        </select>
+
+        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:12px; font-weight:600; color:var(--brand);">Fee:</span>
+          <span id="shipping-display" style="font-size:13px; font-weight:700;">₱0.00</span>
+        </div>
+      </div>
+      <input type="hidden" id="input-shipping" value="0">
+
+      <div style="margin-top:12px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="preorder-discount" style="width:16px; height:16px;">
+          <span style="font-weight:600; color:var(--brand);">Apply Pre-order Discount (₱50 off/item)</span>
+        </label>
+      </div>
+
+
+      <div class="small">Subtotal and total are calculated automatically.</div>
+
+      <div class="buttons">
+        <button class="btn-done" id="btn-done">Done (Save & Print)</button>
+        <button class="btn-print" id="btn-print" style="display:none">Print Receipt</button>
+      </div>
+
+      <div id="download-status" style="display:none;"></div>
+
+      <button id="mobile-toggle-btn" class="mobile-toggle">🔄 Show Receipt Preview</button>
+    </div>
+
+    <div class="preview-wrap" id="preview-wrap">
+      <div class="receipt" id="receipt">
+        <div class="header">
+          <img class="seal" src="willow_logo.png" alt="Willow Logo" />
+          <div class="company">
+            <h1>WILLOW</h1>
+            <p>Made to Wear, Everywhere</p>
+          </div>
+          <div style="display:flex;flex-direction:column; align-items:flex-end;">
+            <div class="meta">
+              <div><span>Invoice No.</span><strong id="r-invoice">____________</strong></div>
+              <div style="margin-top:6px"><span>Date of Recording</span><strong id="r-date">____________</strong></div>
+            </div>
+
+            <svg id="barcode" class="knight" style="margin-top:10px"></svg>
+            <div class="barcode-note">Verified by Willow Finance Department</div>
+          </div>
+        </div>
+
+        <table class="items" id="items-table">
+          <thead>
+            <tr>
+              <th>QTY</th>
+              <th>DESCRIPTION</th>
+              <th>PRICE</th>
+              <th>AMOUNT</th>
+            </tr>
+          </thead>
+          <tbody id="items-body"></tbody>
+        </table>
+
+        <table class="totals" style="width:100%; border-collapse:collapse; margin-top:8px; font-size:13px;">
+          <tr>
+            <td></td>
+            <td></td>
+            <td style="text-align:right; padding-right:16px;">SUBTOTAL:</td>
+            <td id="r-subtotal" class="align-amount">₱0.00</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td style="text-align:right; padding-right:16px;">SHIPPING:</td>
+            <td id="r-shipping" class="align-amount">₱0.00</td>
+          </tr>
+          <tr id="row-discount" style="display:none; color:#334364;">
+            <td></td>
+            <td></td>
+            <td style="text-align:right; padding-right:16px;">DISCOUNT:</td>
+            <td id="r-discount" class="align-amount">-₱100.00</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td style="text-align:right; padding-right:16px; font-weight:700">TOTAL:</td>
+            <td id="r-total" class="align-amount" style="font-weight:700;">₱0.00</td>
+          </tr>
+        </table>
+
+
+
+        <div class="validated">
+          <div><strong>Validated By:</strong></div>
+          <div style="margin-top:6px; position:relative; top:-25px;">
+            <img id="sig-brent" src="sala_sig.png"
+              style="height:50px; margin-bottom:-10px; position:relative; top:10px;" alt="sala_sig"><br>
+            <span id="name-brent" style="position:relative; top:0px;">Elisha Jane Sala</span><br>
+            <span id="role-brent">Finance Department Head, Willow</span>
+          </div>
+          <div style="position:relative; top:-100px;">
+            <img id="sig-lead" src="macabenlar_sig.png" style="height:100px; position:relative; top:50px; z-index:0;"
+              alt="macabenlar_sig">
+            <span id="name-lead" style="position:relative; top:0px; left:-102px; z-index:2;">Madisson
+              Macabenlar</span><br>
+            <span id="role-lead">General Manager, Willow</span>
+          </div>
+        </div>
+
+        <div style="position:absolute; left:46px; bottom:46px; font-size:13px; color:#334364;">
+          <div>Payment Made By: <span class="write-line" id="r-name"></span></div>
+          <div style="margin-top:6px">Grade and Section: <span class="write-line" id="r-grade"></span></div>
+          <div style="margin-top:6px">Email: <span class="write-line" id="r-email"></span></div>
+          <div style="margin-top:6px">Payment Type: <span class="write-line" id="r-payment"></span></div>
+          <div style="margin-top:6px">Status: <span class="write-line" id="r-status" style="font-weight:700;"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+  <script>
+    function currency(v) { return '₱' + Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+    // Hardcoded Willow product options based on provided images
+    const presetItems = [
+      // Boxy Fit options
+      { name: 'Boxy Fit - S - Harbor Navy', price: 0 },
+      { name: 'Boxy Fit - S - Apricot White', price: 0 },
+      { name: 'Boxy Fit - S - Midnight Black', price: 0 },
+      { name: 'Boxy Fit - M - Harbor Navy', price: 0 },
+      { name: 'Boxy Fit - M - Apricot White', price: 0 },
+      { name: 'Boxy Fit - M - Midnight Black', price: 0 },
+      { name: 'Boxy Fit - L - Harbor Navy', price: 0 },
+      { name: 'Boxy Fit - L - Apricot White', price: 0 },
+      { name: 'Boxy Fit - L - Midnight Black', price: 0 },
+      { name: 'Boxy Fit - XL - Harbor Navy', price: 0 },
+      { name: 'Boxy Fit - XL - Apricot White', price: 0 },
+      { name: 'Boxy Fit - XL - Midnight Black', price: 0 },
+      { name: 'Boxy Fit - XXL - Harbor Navy', price: 0 },
+      { name: 'Boxy Fit - XXL - Apricot White', price: 0 },
+      { name: 'Boxy Fit - XXL - Midnight Black', price: 0 },
+      // Slim Fit options
+      { name: 'Slim Fit - XS - Harbor Navy', price: 0 },
+      { name: 'Slim Fit - XS - Apricot White', price: 0 },
+      { name: 'Slim Fit - XS - Midnight Black', price: 0 },
+      { name: 'Slim Fit - S - Harbor Navy', price: 0 },
+      { name: 'Slim Fit - S - Apricot White', price: 0 },
+      { name: 'Slim Fit - S - Midnight Black', price: 0 },
+      { name: 'Slim Fit - M - Harbor Navy', price: 0 },
+      { name: 'Slim Fit - M - Apricot White', price: 0 },
+      { name: 'Slim Fit - M - Midnight Black', price: 0 },
+      { name: 'Slim Fit - L - Harbor Navy', price: 0 },
+      { name: 'Slim Fit - L - Apricot White', price: 0 },
+      { name: 'Slim Fit - L - Midnight Black', price: 0 },
+      { name: 'Slim Fit - XL - Harbor Navy', price: 0 },
+      { name: 'Slim Fit - XL - Apricot White', price: 0 },
+      { name: 'Slim Fit - XL - Midnight Black', price: 0 }
+    ];
+
+    // Hardcoded Google Sheets URL (locked and hidden from UI)
+    const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwrsvUMf2RrvgxBPMM10jbkH8pjAiqb6XVymZ6WS3PlkmhjzoCl7zFor16ALfpn0at-/exec';
+
+    /* Invoice generator */
+    function todayYMD() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}${m}${day}`;
+    }
+    function getCounterForDate(dateStr) {
+      const key = `abb_invoice_counter_${dateStr}`;
+      const raw = localStorage.getItem(key);
+      return raw ? Number(raw) : 0;
+    }
+    function setCounterForDate(dateStr, n) {
+      const key = `abb_invoice_counter_${dateStr}`;
+      localStorage.setItem(key, String(n));
+    }
+    function nextInvoiceNumber() {
+      const d = todayYMD();
+      let counter = getCounterForDate(d);
+      counter = counter + 1;
+      setCounterForDate(d, counter);
+      const seq = String(counter).padStart(4, '0');
+      return `INV-${d}-${seq}`;
+    }
+
+    /* Build item row */
+    function buildItemRow(desc = '', qty = 1, price = 0) {
+      const tr = document.createElement('div');
+      tr.className = 'item-row';
+
+      // Build preset dropdown options
+      let dropdownOptions = '<option value="">-- Select Preset or Type Below --</option>';
+      presetItems.forEach((item, idx) => {
+        if (item.name) {
+          dropdownOptions += `<option value="${idx}">${item.name} - ₱${item.price.toFixed(2)}</option>`;
+        }
+      });
+
+      tr.innerHTML = `
+    <div class="product-selector">
+      <h5>1. Select Fit Type</h5>
+      <div class="option-boxes">
+        <div class="option-box">
+          <input type="radio" name="fit-${Date.now()}" value="Boxy Fit" id="boxy-${Date.now()}">
+          <label for="boxy-${Date.now()}">Boxy Fit</label>
+        </div>
+        <div class="option-box">
+          <input type="radio" name="fit-${Date.now()}" value="Slim Fit" id="slim-${Date.now()}">
+          <label for="slim-${Date.now()}">Slim Fit</label>
+        </div>
+      </div>
+    </div>
+    
+    <div class="product-selector">
+      <h5>2. Select Color</h5>
+      <div class="option-boxes">
+        <div class="option-box">
+          <input type="radio" name="color-${Date.now()}" value="Harbor Navy" id="navy-${Date.now()}">
+          <label for="navy-${Date.now()}">Harbor Navy</label>
+        </div>
+        <div class="option-box">
+          <input type="radio" name="color-${Date.now()}" value="Apricot White" id="white-${Date.now()}">
+          <label for="white-${Date.now()}">Apricot White</label>
+        </div>
+        <div class="option-box">
+          <input type="radio" name="color-${Date.now()}" value="Midnight Black" id="black-${Date.now()}">
+          <label for="black-${Date.now()}">Midnight Black</label>
+        </div>
+      </div>
+    </div>
+    
+    <div class="product-selector">
+      <h5>3. Select Size</h5>
+      <div class="size-options boxy-sizes">
+        <div class="option-boxes">
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="S" id="s-${Date.now()}"><label for="s-${Date.now()}">S</label></div>
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="M" id="m-${Date.now()}"><label for="m-${Date.now()}">M</label></div>
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="L" id="l-${Date.now()}"><label for="l-${Date.now()}">L</label></div>
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="XL" id="xl-${Date.now()}"><label for="xl-${Date.now()}">XL</label></div>
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="XXL" id="xxl-${Date.now()}"><label for="xxl-${Date.now()}">XXL</label></div>
+        </div>
+      </div>
+      <div class="size-options slim-sizes">
+        <div class="option-boxes">
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="XS" id="xs-${Date.now()}"><label for="xs-${Date.now()}">XS</label></div>
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="S" id="s2-${Date.now()}"><label for="s2-${Date.now()}">S</label></div>
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="M" id="m2-${Date.now()}"><label for="m2-${Date.now()}">M</label></div>
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="L" id="l2-${Date.now()}"><label for="l2-${Date.now()}">L</label></div>
+          <div class="option-box"><input type="radio" name="size-${Date.now()}" value="XL" id="xl2-${Date.now()}"><label for="xl2-${Date.now()}">XL</label></div>
+        </div>
+      </div>
+    </div>
+    
+    <input class="desc" placeholder="Description (auto-filled)" value="${desc}" readonly style="background:#f3f4f6;">
+    <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+      <div style="flex:0 0 100px;">
+        <label style="font-size:11px; color:var(--muted); margin:0 0 4px 0;">Quantity</label>
+        <input class="qty" type="number" min="1" value="${qty}" style="width:100%;">
+      </div>
+      <div style="flex:1; padding:10px; background:#f0f9ff; border:2px solid var(--brand); border-radius:6px; text-align:center;">
+        <div style="font-size:11px; color:var(--muted);">Price per item</div>
+        <div style="font-size:18px; font-weight:700; color:var(--brand);">₱649.00</div>
+      </div>
+      <div style="flex:0 0 120px;">
+        <label style="font-size:11px; color:var(--muted); margin:0 0 4px 0;">Total Amount</label>
+        <div class="amount" style="padding:10px; background:#f9fafb; border-radius:4px; text-align:center; font-weight:600;">${currency(qty * 649)}</div>
+      </div>
+      <button class="btn-remove" type="button" style="margin-top:20px;">×</button>
+    </div>
+  `;
+
+      const descEl = tr.querySelector('.desc');
+      const qtyEl = tr.querySelector('.qty');
+      const amtEl = tr.querySelector('.amount');
+      const FIXED_PRICE = 649; // Hardcoded price
+
+      const fitRadios = tr.querySelectorAll('input[name^="fit-"]');
+      const colorRadios = tr.querySelectorAll('input[name^="color-"]');
+      const sizeRadios = tr.querySelectorAll('input[name^="size-"]');
+      const boxySizes = tr.querySelector('.boxy-sizes');
+      const slimSizes = tr.querySelector('.slim-sizes');
+
+      // Update description based on selections
+      function updateDescription() {
+        const fit = tr.querySelector('input[name^="fit-"]:checked')?.value || '';
+        const color = tr.querySelector('input[name^="color-"]:checked')?.value || '';
+        const size = tr.querySelector('input[name^="size-"]:checked')?.value || '';
+
+        if (fit && color && size) {
+          descEl.value = `${fit} - ${size} - ${color}`;
+        } else {
+          descEl.value = '';
+        }
+      }
+
+      // Show/hide size options based on fit selection
+      fitRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          if (e.target.value === 'Boxy Fit') {
+            boxySizes.classList.add('active');
+            slimSizes.classList.remove('active');
+          } else {
+            slimSizes.classList.add('active');
+            boxySizes.classList.remove('active');
+          }
+          // Clear size selection when changing fit
+          sizeRadios.forEach(r => r.checked = false);
+          updateDescription();
+        });
+      });
+
+      // Update description when color or size changes
+      colorRadios.forEach(radio => {
+        radio.addEventListener('change', updateDescription);
+      });
+
+      sizeRadios.forEach(radio => {
+        radio.addEventListener('change', updateDescription);
+      });
+
+      function recalc() { amtEl.textContent = currency(Number(qtyEl.value || 0) * FIXED_PRICE); }
+      qtyEl.addEventListener('input', recalc);
+
+      // Store price getter for receipt generation
+      tr.getPrice = () => FIXED_PRICE;
+
+      // Remove button functionality
+      tr.querySelector('.btn-remove').addEventListener('click', () => {
+        if (itemsContainer.querySelectorAll('.item-row').length > 1) {
+          tr.remove();
+        } else {
+          alert('You must have at least one item row.');
+        }
+      });
+
+      return tr;
+    }
+
+    const itemsContainer = document.getElementById('items-container');
+
+    // Create initial item row
+    itemsContainer.appendChild(buildItemRow());
+
+    document.getElementById('add-item').addEventListener('click', () => itemsContainer.appendChild(buildItemRow()));
+
+    // Clear all fields button
+    document.getElementById('clear-all').addEventListener('click', () => {
+      // Clear customer info
+      document.getElementById('input-name').value = '';
+      document.getElementById('input-grade').value = '';
+      document.getElementById('input-email').value = '';
+      document.getElementById('input-payment').selectedIndex = 0;
+      document.getElementById('input-invoice').value = '';
+      document.getElementById('input-date').value = '';
+
+      // Reset items to single empty row
+      itemsContainer.innerHTML = '';
+      itemsContainer.appendChild(buildItemRow());
+
+      // Hide print button and clear status
+      document.getElementById('btn-print').style.display = 'none';
+      const statusDiv = document.getElementById('download-status');
+      statusDiv.style.display = 'none';
+      statusDiv.textContent = '';
+
+      // Clear receipt preview
+      document.getElementById('r-name').textContent = '';
+      document.getElementById('r-grade').textContent = '';
+      document.getElementById('r-email').textContent = '';
+      document.getElementById('r-payment').textContent = '';
+      document.getElementById('r-invoice').textContent = '';
+      document.getElementById('r-date').textContent = '';
+      document.getElementById('items-body').innerHTML = '';
+      document.getElementById('r-subtotal').textContent = '₱0.00';
+      document.getElementById('r-total').textContent = '₱0.00';
+      document.getElementById('barcode').innerHTML = '';
+    });
+
+    document.getElementById('btn-gen-invoice').addEventListener('click', () => {
+      const inv = nextInvoiceNumber();
+      document.getElementById('input-invoice').value = inv;
+    });
+
+    /* Send to Google Sheets */
+    async function sendToGoogleSheets(data) {
+      try {
+        const response = await fetch(SHEETS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+
+        // Note: no-cors means we can't read the response, but the request will go through
+        return true;
+      } catch (error) {
+        console.error('Error sending to sheets:', error);
+        return false;
+      }
+    }
+
+    /* Fill receipt preview and send to sheets */
+    document.getElementById('btn-done').addEventListener('click', async function () {
+      if (!document.getElementById('input-invoice').value.trim()) {
+        document.getElementById('input-invoice').value = nextInvoiceNumber();
+      }
+
+      const name = document.getElementById('input-name').value || '';
+      const grade = document.getElementById('input-grade').value || '';
+      const email = document.getElementById('input-email').value || '';
+      const payment = document.getElementById('input-payment').value || '';
+      // Status
+      const statusType = document.getElementById('input-status').value;
+      const amountPaidInput = Number(document.getElementById('input-amount-paid').value) || 0;
+
+      const invoice = document.getElementById('input-invoice').value || '';
+      const date = document.getElementById('input-date').value || '';
+
+      // Fill preview fields
+      document.getElementById('r-name').textContent = name || '';
+      document.getElementById('r-grade').textContent = grade || '';
+      document.getElementById('r-email').textContent = email || '';
+      document.getElementById('r-payment').textContent = payment || '';
+      document.getElementById('r-invoice').textContent = invoice || '';
+      document.getElementById('r-date').textContent = date || '';
+
+      // Generate barcode
+      if (invoice) {
+        try {
+          JsBarcode("#barcode", invoice, { format: "CODE128", lineColor: "#16379b", width: 1.6, height: 40, displayValue: true, fontSize: 12 });
+        } catch (e) {
+          document.getElementById('barcode').innerHTML = '';
+        }
+      } else {
+        document.getElementById('barcode').innerHTML = '';
+      }
+
+      // Fill items table and collect items data
+      const rows = itemsContainer.querySelectorAll('.item-row');
+      const body = document.getElementById('items-body');
+      body.innerHTML = '';
+      let subtotal = 0;
+      let totalQty = 0;
+      const items = [];
+
+      rows.forEach(r => {
+        const desc = r.querySelector('.desc').value || '';
+        const qty = Number(r.querySelector('.qty').value || 0);
+        totalQty += qty;
+        const price = 649; // Hardcoded price
+        const amt = qty * price;
+        subtotal += amt;
+
+        // Add to receipt preview
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class='center'>${qty}</td><td>${desc}</td><td style='text-align:right'>${currency(price)}</td><td style='text-align:right;font-weight:600'>${currency(amt)}</td>`;
+        body.appendChild(tr);
+
+        // Collect item data for Google Sheets (only if has description)
+        if (desc.trim() !== '') {
+          items.push({
+            description: desc,
+            quantity: qty,
+            price: price,
+            amount: amt
+          });
+        }
+      });
+
+      document.getElementById('r-subtotal').textContent = currency(subtotal);
+
+      // Calculate shipping based on dropdowns
+      let shippingFee = 0;
+      const region = document.getElementById('shipping-region').value;
+      const box = document.getElementById('shipping-box').value;
+
+      if (region && box) {
+        if (region === 'luzon') {
+          shippingFee = (box === 'small') ? 165 : 210;
+        } else if (region === 'visayas' || region === 'mindanao') {
+          shippingFee = (box === 'small') ? 160 : 200;
+        }
+      }
+
+      const total = subtotal + shippingFee;
+
+      // Discount Logic
+      const isDiscount = document.getElementById('preorder-discount').checked;
+      let discountAmt = 0;
+      if (isDiscount) {
+        discountAmt = totalQty * 50;
+      }
+
+      const finalTotal = total - discountAmt;
+
+      // Status Logic
+      let statusText = "Fully Paid";
+      let balance = 0;
+      if (statusType === 'Pending') {
+        balance = finalTotal - amountPaidInput;
+        if (balance < 0) balance = 0;
+        statusText = `Pending (Bal: ₱${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
+      } else {
+        balance = 0;
+      }
+
+      document.getElementById('r-shipping').textContent = currency(shippingFee);
+
+      // Update Discount Row
+      const discountRow = document.getElementById('row-discount');
+      if (isDiscount) {
+        discountRow.style.display = 'table-row';
+        document.getElementById('r-discount').textContent = '-' + currency(discountAmt);
+      } else {
+        discountRow.style.display = 'none';
+      }
+
+      document.getElementById('r-total').textContent = currency(finalTotal);
+      document.getElementById('r-status').textContent = statusText;
+      if (statusType === 'Pending') {
+        document.getElementById('r-status').style.color = '#ef4444'; // Red
+      } else {
+        document.getElementById('r-status').style.color = '#10b981'; // Green
+      }
+
+      // Send to Google Sheets
+      const statusDiv = document.getElementById('download-status');
+      statusDiv.style.display = 'block';
+      statusDiv.textContent = '📤 Saving to Google Sheets...';
+      statusDiv.style.background = '#FFF3CD';
+      statusDiv.style.color = '#856404';
+
+      const data = {
+        invoice: invoice,
+        name: name,
+        grade: grade,
+        email: email,
+        payment: payment,
+        date: date,
+        items: items,
+        subtotal: subtotal,
+        shipping: shippingFee,
+        discount: discountAmt,
+        total: finalTotal,
+        status: statusText,
+        balance: balance
+      };
+
+      const success = await sendToGoogleSheets(data);
+
+      if (success) {
+        statusDiv.textContent = `✅ Successfully saved to Sheets!`;
+        statusDiv.style.background = '#D4EDDA';
+        statusDiv.style.color = '#155724';
+      } else {
+        statusDiv.textContent = '⚠️ Request sent (check your Sheets to confirm)';
+        statusDiv.style.background = '#D4EDDA';
+        statusDiv.style.color = '#155724';
+      }
+
+      document.getElementById('btn-print').style.display = 'inline-block';
+
+      // Auto-download after a short delay to ensure receipt is filled
+      setTimeout(() => {
+        // Use customer name for filename
+        const customerName = document.getElementById('input-name').value || 'Receipt';
+        // Save original title to restore later
+        const originalTitle = document.title;
+        // Set title to customer name for PDF filename
+        document.title = customerName;
+
+        // Trigger print dialog with optimized settings
+        window.print();
+
+        // Restore original title after print dialog opens
+        setTimeout(() => {
+          document.title = originalTitle;
+        }, 1000);
+      }, 500);
+    });
+
+    /* Print button */
+    document.getElementById('btn-print').addEventListener('click', () => {
+      window.print();
+    });
+
+    /* Mobile toggle */
+    const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
+    const previewWrap = document.getElementById('preview-wrap');
+    mobileToggleBtn && mobileToggleBtn.addEventListener('click', () => {
+      if (previewWrap.style.display === 'block' || previewWrap.style.display === '') {
+        previewWrap.style.display = 'none';
+        mobileToggleBtn.textContent = '🔄 Show Receipt Preview';
+      } else {
+        previewWrap.style.display = 'block';
+        mobileToggleBtn.textContent = '🔄 Hide Receipt Preview';
+      }
+    });
+
+    /* Shipping Auto-Calc UI Update */
+    function updateShippingUI() {
+      let fee = 0;
+      const region = document.getElementById('shipping-region').value;
+      const box = document.getElementById('shipping-box').value;
+
+      if (region && box) {
+        if (region === 'luzon') {
+          fee = (box === 'small') ? 165 : 210;
+        } else if (region === 'visayas' || region === 'mindanao') {
+          fee = (box === 'small') ? 160 : 200;
+        }
+      }
+      document.getElementById('shipping-display').textContent = currency(fee);
+    }
+    document.getElementById('shipping-region').addEventListener('change', updateShippingUI);
+    document.getElementById('shipping-box').addEventListener('change', updateShippingUI);
+
+    /* Listen for messages from Encoder */
+    window.addEventListener('message', (event) => {
+      const { type, data } = event.data;
+
+      if (type === 'CUSTOMER_INFO') {
+        document.getElementById('input-name').value = data.name || '';
+        document.getElementById('input-grade').value = data.grade || '';
+        document.getElementById('input-email').value = data.email || '';
+
+        // Handle Shipping if present
+        // Handle Shipping if present (Legacy support or if Encoder sends it in future)
+        // Since logic is now here, we just reset or ignore.
+        // If the encoder sends nothing specific for shipping, we default to None.
+        document.getElementById('shipping-region').value = "";
+        document.getElementById('shipping-box').value = "";
+        updateShippingUI();
+
+        // Handle Items
+        const container = document.getElementById('items-container');
+        container.innerHTML = ''; // Clear existing
+
+        if (data.items && data.items.length > 0) {
+          data.items.forEach(item => {
+            // Need to match preset items logic
+            // For now, we will create rows assuming they are valid presets
+            // Since we can't easily auto-select dropdowns without index, we will just set values manually if possible
+            // But the current implementation depends on dropdown selection for "Preset" or manual typing.
+            // Wait, buildItemRow just adds a row.
+            // We can manually set the inputs if we expose them.
+            // The buildItemRow returns 'tr'. logic:
+
+            const tr = buildItemRow(item.description, item.quantity, item.price);
+            // We need to override the values since buildItemRow sets defaults
+            tr.querySelector('.desc').value = item.description;
+            // tr.querySelector('.qty').value = item.quantity; // default is passed
+            // tr.querySelector('.amount').textContent = currency(item.amount); // recalc will happen
+
+            // We need to trigger recalc?
+            // buildItemRow adds event listeners.
+            container.appendChild(tr);
+          });
+        } else {
+          container.appendChild(buildItemRow());
+        }
+      }
+
+      if (type === 'TRIGGER_DONE') {
+        document.getElementById('btn-done').click();
+      }
+    });
+
+    /* Set today's date as default */
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('input-date').value = today;
+
+    /* Toggle Amount Paid input */
+    document.getElementById('input-status').addEventListener('change', (e) => {
+      const balanceContainer = document.getElementById('balance-container');
+      if (e.target.value === 'Pending') {
+        balanceContainer.style.display = 'block';
+      } else {
+        balanceContainer.style.display = 'none';
+        document.getElementById('input-amount-paid').value = '';
+      }
+    });
+  </script>
+</body>
+
+</html>

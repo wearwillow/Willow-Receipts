@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Encoder Input - Willow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Open Sans", Arial, sans-serif;
+      background: linear-gradient(135deg, #334364 0%, #212b40 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+      padding: 50px 40px;
+      animation: slideIn 0.5s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      background: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 8px 20px rgba(22, 55, 155, 0.3);
+    }
+
+    .logo img {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+    }
+
+    h1 {
+      color: #334364;
+      font-size: 32px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      font-family: "Fredoka", sans-serif;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      font-size: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      color: #374151;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 15px 18px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      outline: none;
+      border-color: #334364;
+      box-shadow: 0 0 0 4px rgba(51, 67, 100, 0.1);
+    }
+
+    input::placeholder {
+      color: #9ca3af;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 18px;
+      background: #334364;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-submit:hover {
+      background: #212b40;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(51, 67, 100, 0.3);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .success-message {
+      display: none;
+      background: #10b981;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: center;
+      font-weight: 600;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .error {
+      border-color: #ef4444 !important;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .info-box {
+      background: #f0f9ff;
+      border-left: 4px solid #334364;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      color: #334364;
+      font-size: 14px;
+    }
+
+    .info-box strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .item-tile {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      position: relative;
+    }
+
+    .item-tile:hover {
+      border-color: #334364;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(51, 67, 100, 0.15);
+    }
+
+    .item-tile.selected {
+      background: #334364;
+      border-color: #334364;
+      color: white;
+    }
+
+    .item-tile .item-name {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 8px;
+      word-wrap: break-word;
+    }
+
+    .item-tile .item-price {
+      font-size: 14px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .item-tile.selected .item-price {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .item-tile .qty-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #10b981;
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+    }
+
+    .quantity-controls {
+      display: none;
+      margin-top: 12px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .item-tile.selected .quantity-controls {
+      display: flex;
+    }
+
+    .qty-btn {
+      width: 30px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .qty-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .qty-display {
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .selected-items-summary {
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .selected-items-summary.show {
+      display: block;
+    }
+
+    .selected-items-summary h4 {
+      color: #334364;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .selected-items-summary .item-line {
+      font-size: 13px;
+      color: #374151;
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .selected-items-summary .item-line:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="index.html"
+        style="position: absolute; top: 20px; left: 20px; text-decoration: none; color: #334364; font-size: 20px; font-weight: bold;">🏠
+        Home</a>
+      <div class="logo" style="box-shadow: none; background: transparent; width: 120px; height: 120px;"><img
+          src="willow_logo.png" alt="Willow Logo" style="width: 100%; height: 100%;" /></div>
+      <h1>Encoder Screen</h1>
+      <p class="subtitle">Quickly enter customer and items</p>
+    </div>
+
+    <div class="info-box">
+      <strong>⚡ Encoder Hub:</strong>
+      All data entered here will sync immediately to the main receipt generator.
+    </div>
+
+    <form id="customer-form">
+      <div class="form-group">
+        <label for="name">Full Name *</label>
+        <input type="text" id="name" name="name" placeholder="e.g. Juan Dela Cruz" required autocomplete="name" />
+        <div class="error-message" id="name-error">Please enter your full name</div>
+      </div>
+
+      <div class="form-group">
+        <label for="grade">Grade and Section *</label>
+        <input type="text" id="grade" name="grade" placeholder="e.g. 11-Hurtado" required />
+        <div class="error-message" id="grade-error">Please enter your grade and section</div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input type="email" id="email" name="email" placeholder="student@addu.edu.ph" required autocomplete="email" />
+        <div class="error-message" id="email-error">Please enter a valid email address</div>
+      </div>
+
+      <div class="form-group">
+        <label for="items">Items to Purchase</label>
+        <div id="items-container" class="items-grid">
+          <!-- Item tiles will be added here -->
+        </div>
+      </div>
+
+      <div style="margin-top:20px; padding:15px; background:#f9fafb; border-radius:10px; border:1px solid #e5e7eb;">
+        <label style="margin-top:0;">Payment Type</label>
+        <select id="payment-type"
+          style="width:100%; padding:12px; border:2px solid #e5e7eb; border-radius:10px; margin-top:8px; font-family:inherit;">
+          <option>Cash</option>
+          <option>GCash</option>
+          <option>Bank Transfer</option>
+        </select>
+      </div>
+
+      <div id="config-toggle"
+        style="margin-top:15px; text-align:center; font-size:12px; color:#6b7280; cursor:pointer; text-decoration:underline;">
+        ⚙️ Show/Hide Settings</div>
+      <div id="config-section"
+        style="display:none; margin-top:10px; padding:15px; background:#f0f9ff; border-radius:10px; border:1px solid #334364;">
+        <label>Google Apps Script URL</label>
+        <input type="text" id="sheets-url" placeholder="Paste URL here" style="padding:10px; font-size:13px;" />
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:20px;">
+        <button type="button" id="btn-sync" class="btn-submit" style="flex:1; background:#6b7280; margin-top:0;">Sync to
+          Receipt</button>
+        <button type="submit" class="btn-submit" style="flex:2; margin-top:0;">Done (Save & Print)</button>
+      </div>
+    </form>
+
+    <div class="success-message" id="success-message">
+      ✅ Data synced to Willow Generator!
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('customer-form');
+    const nameInput = document.getElementById('name');
+    const gradeInput = document.getElementById('grade');
+    const emailInput = document.getElementById('email');
+    const successMessage = document.getElementById('success-message');
+    const itemsContainer = document.getElementById('items-container');
+
+    // Load preset items from localStorage
+    let presetItems = [];
+    let selectedItems = {}; // Track selected items: { itemIdx: quantity }
+
+    function loadPresetItems() {
+      const saved = localStorage.getItem('preset_items_abb');
+      if (saved) {
+        try {
+          presetItems = JSON.parse(saved);
+        } catch (e) {
+          presetItems = [];
+        }
+      }
+      renderItemTiles();
+    }
+
+    // Render item tiles
+    function renderItemTiles() {
+      itemsContainer.innerHTML = '';
+
+      if (presetItems.length === 0) {
+        itemsContainer.innerHTML = '<p style="color:#6b7280; font-size:14px; text-align:center; padding:20px;">No items available. Please add preset items in the main receipt generator.</p>';
+        return;
+      }
+
+      presetItems.forEach((item, idx) => {
+        if (!item.name) return;
+
+        const tile = document.createElement('div');
+        tile.className = 'item-tile';
+        if (selectedItems[idx]) {
+          tile.classList.add('selected');
+        }
+
+        tile.innerHTML = `
+          <div class="item-name">${item.name}</div>
+          <div class="item-price">₱${item.price.toFixed(2)}</div>
+          ${selectedItems[idx] ? `<div class="qty-badge">${selectedItems[idx]}</div>` : ''}
+          <div class="quantity-controls">
+            <button type="button" class="qty-btn qty-minus">−</button>
+            <div class="qty-display">${selectedItems[idx] || 1}</div>
+            <button type="button" class="qty-btn qty-plus">+</button>
+          </div>
+        `;
+
+        // Toggle selection on tile click (but not on buttons)
+        tile.addEventListener('click', (e) => {
+          if (e.target.classList.contains('qty-btn')) return;
+
+          if (selectedItems[idx]) {
+            delete selectedItems[idx];
+          } else {
+            selectedItems[idx] = 1;
+          }
+          renderItemTiles();
+        });
+
+        // Quantity controls
+        const minusBtn = tile.querySelector('.qty-minus');
+        const plusBtn = tile.querySelector('.qty-plus');
+
+        if (minusBtn) {
+          minusBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (selectedItems[idx] > 1) {
+              selectedItems[idx]--;
+              renderItemTiles();
+            }
+          });
+        }
+
+        if (plusBtn) {
+          plusBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectedItems[idx] = (selectedItems[idx] || 1) + 1;
+            renderItemTiles();
+          });
+        }
+
+        itemsContainer.appendChild(tile);
+      });
+    }
+
+    // Initialize
+    loadPresetItems();
+
+    // Clear error styling when user types
+    [nameInput, gradeInput, emailInput].forEach(input => {
+      input.addEventListener('input', () => {
+        input.classList.remove('error');
+        const err = document.getElementById(`${input.id}-error`);
+        if (err) err.classList.remove('show');
+      });
+    });
+
+    // Config show/hide
+    const configToggle = document.getElementById('config-toggle');
+    const configSection = document.getElementById('config-section');
+    configToggle.addEventListener('click', () => {
+      configSection.style.display = configSection.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Load/Save Settings
+    const sheetsUrlInput = document.getElementById('sheets-url');
+
+    sheetsUrlInput.value = localStorage.getItem('sheets_url') || '';
+
+    sheetsUrlInput.addEventListener('change', (e) => localStorage.setItem('sheets_url', e.target.value));
+
+    /* Invoice generation logic */
+    function todayYMD() {
+      const d = new Date();
+      return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+    }
+    function nextInvoiceNumber() {
+      const d = todayYMD();
+      const key = `abb_invoice_counter_${d}`;
+      const counter = (Number(localStorage.getItem(key)) || 0) + 1;
+      localStorage.setItem(key, String(counter));
+      return `INV-${d}-${String(counter).padStart(4, '0')}`;
+    }
+
+    async function sendData(data) {
+      if (!url) {
+        alert('⚠️ Please enter your Google Apps Script URL in settings first!');
+        configSection.style.display = 'block';
+        return false;
+      }
+
+      try {
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        return true;
+      } catch (err) {
+        console.error(err);
+        return false;
+      }
+    }
+
+    // Handle Sync Only
+    document.getElementById('btn-sync').addEventListener('click', () => {
+      syncToParent();
+      successMessage.classList.add('show');
+      successMessage.innerHTML = '✅ Data synced to main generator!';
+      setTimeout(() => successMessage.classList.remove('show'), 3000);
+    });
+
+    function syncToParent() {
+      const itemsArray = [];
+      Object.keys(selectedItems).forEach(idx => {
+        const item = presetItems[parseInt(idx)];
+        itemsArray.push({ description: item.name, quantity: selectedItems[idx], price: item.price });
+      });
+
+      const customerData = {
+        name: nameInput.value.trim(),
+        grade: gradeInput.value.trim(),
+        email: emailInput.value.trim(),
+        items: itemsArray,
+        timestamp: new Date().toISOString()
+      };
+
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({ type: 'CUSTOMER_INFO', data: customerData }, '*');
+      }
+      localStorage.setItem('abb_customer_data', JSON.stringify(customerData));
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Reset errors
+      document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+      document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
+
+      let isValid = true;
+      if (nameInput.value.trim().length < 3) {
+        nameInput.classList.add('error');
+        const err = document.getElementById('name-error');
+        if (err) err.classList.add('show');
+        isValid = false;
+      }
+      if (gradeInput.value.trim().length < 2) {
+        gradeInput.classList.add('error');
+        const err = document.getElementById('grade-error');
+        if (err) err.classList.add('show');
+        isValid = false;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailInput.value.trim())) {
+        emailInput.classList.add('error');
+        const err = document.getElementById('email-error');
+        if (err) err.classList.add('show');
+        isValid = false;
+      }
+
+      if (!isValid) return;
+
+      // Sync data first
+      syncToParent();
+
+      // Collect data for direct saving
+      const itemsArray = [];
+      let subtotal = 0;
+      Object.keys(selectedItems).forEach(idx => {
+        const item = presetItems[parseInt(idx)];
+        const qty = selectedItems[idx];
+        const amt = qty * item.price;
+        subtotal += amt;
+        itemsArray.push({ description: item.name, quantity: qty, price: item.price, amount: amt });
+      });
+
+      const invoiceNo = nextInvoiceNumber();
+      const finalData = {
+        invoice: invoiceNo,
+        name: nameInput.value.trim(),
+        grade: gradeInput.value.trim(),
+        email: emailInput.value.trim(),
+        payment: document.getElementById('payment-type').value,
+        date: new Date().toISOString().split('T')[0],
+        items: itemsArray,
+        subtotal: subtotal,
+        total: subtotal
+      };
+
+      // Show processing status
+      successMessage.classList.add('show');
+      successMessage.innerHTML = '📤 Saving to Google Sheets...';
+
+      // If opener exists, trigger its "Done" button to automate everything
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({ type: 'TRIGGER_DONE' }, '*');
+        successMessage.innerHTML = '✅ Data sent! Opening print dialog on main screen...';
+      } else {
+        // Standalone mode: just save to sheets
+        const success = await sendData(finalData);
+        if (success) {
+          successMessage.innerHTML = '✅ Receipt saved successfully to Sheets!';
+        } else {
+          successMessage.innerHTML = '⚠️ Attempted to save (check your Sheets)';
+        }
+      }
+
+      // Clear form after delay
+      setTimeout(() => {
+        form.reset();
+        selectedItems = {};
+        renderItemTiles();
+        successMessage.classList.remove('show');
+        nameInput.focus();
+      }, 3000);
+    });
+
+    // Auto-focus on name field when page loads
+    window.addEventListener('load', () => {
+      nameInput.focus();
+    });
+
+    // Listen for clear command from parent window
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'CLEAR_FORM') {
+        form.reset();
+        selectedItems = {};
+        renderItemTiles();
+        successMessage.classList.remove('show');
+        nameInput.focus();
+      }
+    });
+  </script>
+</body>
+
+</html>

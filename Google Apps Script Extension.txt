@@ -1,0 +1,260 @@
+function doPost(e) {
+  try {
+    // Parse the incoming JSON data
+    const data = JSON.parse(e.postData.contents);
+    
+    // Handle PDF Generation Request
+    if (data.action === 'generatePDF') {
+      return handlePDFGeneration(data);
+    }
+    
+    // Handle Regular Sheet Data (your existing functionality)
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    
+    // Prepare items string - combine all items into one cell
+    let itemsText = '';
+    if (data.items && data.items.length > 0) {
+      itemsText = data.items.map(item => {
+        return `${item.description} (Qty: ${item.quantity}, Price: ₱${item.price.toFixed(2)})`;
+      }).join(' | ');
+    }
+    
+    // Create a single row with all the data
+    const row = [
+      data.invoice || '',
+      data.name || '',
+      data.grade || '',
+      data.email || '',
+      data.payment || '',
+      data.date || '',
+      itemsText,
+      data.subtotal || 0,
+      data.total || 0,
+      new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' })
+    ];
+    
+    // Append the single row to the sheet
+    sheet.appendRow(row);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      message: 'Data saved successfully'
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Generate PDF from receipt data and save to Google Drive
+ */
+function handlePDFGeneration(data) {
+  try {
+    const folderId = data.folderId;
+    const fileName = data.fileName;
+    const receiptData = data.receiptData;
+    
+    // Create a temporary Google Doc
+    const tempDoc = DocumentApp.create('temp_receipt_' + new Date().getTime());
+    const docId = tempDoc.getId();
+    
+    // Get the document and clear it
+    const doc = DocumentApp.openById(docId);
+    const body = doc.getBody();
+    body.clear();
+    
+    // Set document margins (A4 format)
+    body.setMarginTop(36);
+    body.setMarginBottom(36);
+    body.setMarginLeft(46);
+    body.setMarginRight(46);
+    
+    // Add header with title
+    const titlePara = body.appendParagraph('WILLOW');
+    titlePara.setHeading(DocumentApp.ParagraphHeading.HEADING1);
+    titlePara.setAlignment(DocumentApp.HorizontalAlignment.LEFT);
+    titlePara.editAsText().setFontFamily('Verdana').setFontSize(22).setForegroundColor('#334364').setBold(true);
+    
+    // Add slogan
+    const sloganPara = body.appendParagraph('Made to Wear, Everywhere');
+    sloganPara.editAsText().setFontFamily('Verdana').setFontSize(10).setForegroundColor('#334364');
+    
+    body.appendHorizontalRule();
+    
+    // Add invoice details in a table format for better alignment
+    const metaTable = body.appendTable();
+    const invoiceRow = metaTable.appendTableRow();
+    invoiceRow.appendTableCell('Invoice No:').editAsText().setBold(true).setFontFamily('Times New Roman').setFontSize(12);
+    invoiceRow.appendTableCell(receiptData.invoice).editAsText().setFontFamily('Times New Roman').setFontSize(12);
+    
+    const dateRow = metaTable.appendTableRow();
+    dateRow.appendTableCell('Date of Recording:').editAsText().setBold(true).setFontFamily('Times New Roman').setFontSize(12);
+    dateRow.appendTableCell(receiptData.date).editAsText().setFontFamily('Times New Roman').setFontSize(12);
+    
+    // Remove table borders for meta table
+    metaTable.setBorderWidth(0);
+    
+    body.appendParagraph('');
+    
+    // Add items table
+    const itemsTable = body.appendTable();
+    
+    // Header row with blue background
+    const headerRow = itemsTable.appendTableRow();
+    const qtyHeader = headerRow.appendTableCell('QTY');
+    qtyHeader.setBackgroundColor('#334364');
+    qtyHeader.editAsText().setForegroundColor('#ffffff').setBold(true).setFontFamily('Verdana').setFontSize(12);
+    qtyHeader.setPaddingTop(10).setPaddingBottom(10).setPaddingLeft(10).setPaddingRight(10);
+    
+    const descHeader = headerRow.appendTableCell('DESCRIPTION');
+    descHeader.setBackgroundColor('#334364');
+    descHeader.editAsText().setForegroundColor('#ffffff').setBold(true).setFontFamily('Verdana').setFontSize(12);
+    descHeader.setPaddingTop(10).setPaddingBottom(10).setPaddingLeft(10).setPaddingRight(10);
+    
+    const priceHeader = headerRow.appendTableCell('PRICE');
+    priceHeader.setBackgroundColor('#334364');
+    priceHeader.editAsText().setForegroundColor('#ffffff').setBold(true).setFontFamily('Verdana').setFontSize(12);
+    priceHeader.setPaddingTop(10).setPaddingBottom(10).setPaddingLeft(10).setPaddingRight(10);
+    
+    const amountHeader = headerRow.appendTableCell('AMOUNT');
+    amountHeader.setBackgroundColor('#334364');
+    amountHeader.editAsText().setForegroundColor('#ffffff').setBold(true).setFontFamily('Verdana').setFontSize(12);
+    amountHeader.setPaddingTop(10).setPaddingBottom(10).setPaddingLeft(10).setPaddingRight(10);
+    
+    // Add item rows
+    receiptData.items.forEach(item => {
+      const row = itemsTable.appendTableRow();
+      
+      const qtyCell = row.appendTableCell(item.quantity.toString());
+      qtyCell.editAsText().setFontFamily('Times New Roman').setFontSize(13);
+      qtyCell.setPaddingTop(10).setPaddingBottom(10).setPaddingLeft(10).setPaddingRight(10);
+      
+      const descCell = row.appendTableCell(item.description);
+      descCell.editAsText().setFontFamily('Times New Roman').setFontSize(13);
+      descCell.setPaddingTop(10).setPaddingBottom(10).setPaddingLeft(10).setPaddingRight(10);
+      
+      const priceCell = row.appendTableCell('₱' + item.price.toFixed(2));
+      priceCell.editAsText().setFontFamily('Times New Roman').setFontSize(13);
+      priceCell.setPaddingTop(10).setPaddingBottom(10).setPaddingLeft(10).setPaddingRight(10);
+      
+      const amountCell = row.appendTableCell('₱' + item.amount.toFixed(2));
+      amountCell.editAsText().setFontFamily('Times New Roman').setFontSize(13).setBold(true);
+      amountCell.setPaddingTop(10).setPaddingBottom(10).setPaddingLeft(10).setPaddingRight(10);
+    });
+    
+    itemsTable.setBorderWidth(1);
+    itemsTable.setBorderColor('#e6eefc');
+    
+    // Add totals
+    body.appendParagraph('');
+    const subtotalPara = body.appendParagraph('SUBTOTAL: ₱' + receiptData.subtotal.toFixed(2));
+    subtotalPara.setAlignment(DocumentApp.HorizontalAlignment.RIGHT);
+    subtotalPara.editAsText().setFontFamily('Times New Roman').setFontSize(13);
+    
+    const totalPara = body.appendParagraph('TOTAL: ₱' + receiptData.total.toFixed(2));
+    totalPara.setAlignment(DocumentApp.HorizontalAlignment.RIGHT);
+    totalPara.editAsText().setFontFamily('Times New Roman').setFontSize(13).setBold(true);
+    
+    body.appendParagraph('');
+    
+    // Add note
+    const notePara = body.appendParagraph('Note: Once an invoice is created, the purchase is final and non-refundable. Please review details before payment.');
+    notePara.editAsText().setFontFamily('Verdana').setFontSize(10).setForegroundColor('#334364').setItalic(true);
+    
+    body.appendParagraph('');
+    body.appendParagraph('');
+    
+    // Add validation section
+    const validatedPara = body.appendParagraph('Validated By:');
+    validatedPara.editAsText().setFontFamily('Verdana').setFontSize(12).setBold(true).setForegroundColor('#334364');
+    
+    body.appendParagraph('');
+    
+    const brentPara = body.appendParagraph('Lord Brent Nahshon Baguio');
+    brentPara.editAsText().setFontFamily('Verdana').setFontSize(12).setForegroundColor('#334364');
+    
+    const brentRolePara = body.appendParagraph('Finance Officer, Willow');
+    brentRolePara.editAsText().setFontFamily('Verdana').setFontSize(11).setForegroundColor('#334364');
+    
+    body.appendParagraph('');
+    
+    const leadPara = body.appendParagraph('Lead Gabrielle Buaya');
+    leadPara.editAsText().setFontFamily('Verdana').setFontSize(12).setForegroundColor('#334364');
+    
+    const leadRolePara = body.appendParagraph('Assistant Finance Officer, Willow');
+    leadRolePara.editAsText().setFontFamily('Verdana').setFontSize(11).setForegroundColor('#334364');
+    
+    body.appendParagraph('');
+    body.appendHorizontalRule();
+    body.appendParagraph('');
+    
+    // Add customer information
+    const paymentPara = body.appendParagraph('Payment Made By: ' + receiptData.name);
+    paymentPara.editAsText().setFontFamily('Verdana').setFontSize(12).setForegroundColor('#334364');
+    
+    const gradePara = body.appendParagraph('Grade and Section: ' + receiptData.grade);
+    gradePara.editAsText().setFontFamily('Verdana').setFontSize(12).setForegroundColor('#334364');
+    
+    const emailPara = body.appendParagraph('Email: ' + receiptData.email);
+    emailPara.editAsText().setFontFamily('Verdana').setFontSize(12).setForegroundColor('#334364');
+    
+    const paymentTypePara = body.appendParagraph('Payment Type: ' + receiptData.payment);
+    paymentTypePara.editAsText().setFontFamily('Verdana').setFontSize(12).setForegroundColor('#334364');
+    
+    doc.saveAndClose();
+    
+    // Convert to PDF
+    const docFile = DriveApp.getFileById(docId);
+    const pdfBlob = docFile.getAs('application/pdf');
+    pdfBlob.setName(fileName);
+    
+    // Save to specified folder
+    const folder = DriveApp.getFolderById(folderId);
+    const pdfFile = folder.createFile(pdfBlob);
+    
+    // Delete temporary doc
+    DriveApp.getFileById(docId).setTrashed(true);
+    
+    // Also log to sheet using the same format as your existing function
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    
+    let itemsText = '';
+    if (receiptData.items && receiptData.items.length > 0) {
+      itemsText = receiptData.items.map(item => {
+        return `${item.description} (Qty: ${item.quantity}, Price: ₱${item.price.toFixed(2)})`;
+      }).join(' | ');
+    }
+    
+    const row = [
+      receiptData.invoice || '',
+      receiptData.name || '',
+      receiptData.grade || '',
+      receiptData.email || '',
+      receiptData.payment || '',
+      receiptData.date || '',
+      itemsText,
+      receiptData.subtotal || 0,
+      receiptData.total || 0,
+      new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' })
+    ];
+    
+    sheet.appendRow(row);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      message: 'PDF created and data saved successfully',
+      fileId: pdfFile.getId(),
+      fileUrl: pdfFile.getUrl()
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: 'PDF Generation Error: ' + error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
