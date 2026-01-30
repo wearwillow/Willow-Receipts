@@ -1173,12 +1173,25 @@
 
       // Auto-download after a short delay to ensure receipt is filled
       setTimeout(() => {
-        // Use customer name for filename
-        const customerName = document.getElementById('input-name').value || 'Receipt';
+        // Get invoice number and customer name
+        const invoiceNum = document.getElementById('input-invoice').value || '';
+        const customerName = document.getElementById('input-name').value || 'Unknown';
+
+        // Extract last 3 digits from invoice number
+        const invoiceDigits = invoiceNum.replace(/\D/g, ''); // Remove non-digits
+        const last3Digits = invoiceDigits.slice(-3).padStart(3, '0'); // Get last 3 digits, pad if needed
+
+        // Extract last name (last word of customer name) and uppercase it
+        const nameParts = customerName.trim().split(/\s+/);
+        const lastName = nameParts[nameParts.length - 1].toUpperCase();
+
+        // Format: [XXX] LASTNAME_BATCH1_OR
+        const pdfFilename = `[${last3Digits}] ${lastName}_BATCH1_OR`;
+
         // Save original title to restore later
         const originalTitle = document.title;
-        // Set title to customer name for PDF filename
-        document.title = customerName;
+        // Set title for PDF filename
+        document.title = pdfFilename;
 
         // Trigger print dialog with optimized settings
         window.print();
